@@ -46,14 +46,9 @@ var generateAccessToken = function (req, resp) {
 var generateRTMToken = function (req, resp) {
     resp.header('Access-Control-Allow-Origin', "*")
 
-    var channel = req.query.channel;
-    if (!channel) {
-        return resp.status(500).json({'error': 'channel name is required'});
-    }
-
     var uid = req.query.uid;
     if (!uid) {
-        uid = 0;
+        return resp.status(500).json({'error': 'uid is required'});
     }
 
     var expiredTs = req.query.expiredTs;
@@ -61,7 +56,7 @@ var generateRTMToken = function (req, resp) {
         expiredTs = 0;
     }
 
-    var token = new Token(APP_ID, APP_CERTIFICATE, channel, uid);
+    var token = new Token(APP_ID, APP_CERTIFICATE, "", uid);
     // typically you will ONLY need join channel priviledge
     token.addPriviledge(1000, expiredTs);
     return resp.json({'token': token.build()});
