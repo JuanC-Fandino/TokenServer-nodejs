@@ -24,7 +24,7 @@ var generateAccessToken = function (req, resp) {
 
     var channel = req.query.channel;
     if (!channel) {
-        return resp.status(500).json({ 'error': 'channel name is required' });
+        return resp.status(500).json({'error': 'channel name is required'});
     }
 
     var uid = req.query.uid;
@@ -43,7 +43,32 @@ var generateAccessToken = function (req, resp) {
     return resp.json({ 'token': token.build() });
 };
 
+var generateRTMToken = function (req, resp) {
+    resp.header('Access-Control-Allow-Origin', "*")
+
+    var channel = req.query.channel;
+    if (!channel) {
+        return resp.status(500).json({'error': 'channel name is required'});
+    }
+
+    var uid = req.query.uid;
+    if (!uid) {
+        uid = 0;
+    }
+
+    var expiredTs = req.query.expiredTs;
+    if (!expiredTs) {
+        expiredTs = 0;
+    }
+
+    var token = new Token(APP_ID, APP_CERTIFICATE, channel, uid);
+    // typically you will ONLY need join channel priviledge
+    token.addPriviledge(1000, expiredTs);
+    return resp.json({'token': token.build()});
+};
+
 app.get('/access_token', nocache, generateAccessToken);
+app.get('/rtm_token', nocache, generateRTMToken);
 
 app.listen(PORT, function () {
     console.log('Service URL http://127.0.0.1:' + PORT + "/");
